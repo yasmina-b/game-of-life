@@ -4,15 +4,15 @@ import enums.CellStates;
 
 public class AsexuateCell extends Cell {
 	
-    public AsexuateCell(int timeUntilHungry, int timeUntilStarve, String name) {
-		super(timeUntilHungry, timeUntilStarve, name);
+    public AsexuateCell(String cellName, int timeUntilHungry, int timeUntilStarve) {
+		super(cellName, timeUntilHungry, timeUntilStarve);
 	}
 
 	@Override
     public void divide() {
 
-        Cell c1 = new AsexuateCell(this.timeUntilHungry,this.timeUntilStarve,this.cellName+"-Achild1");
-        Cell c2 = new AsexuateCell(this.timeUntilHungry,this.timeUntilStarve,this.cellName+"-Achild2");
+        Cell c1 = new AsexuateCell(this.cellName + "-Achild1", this.timeUntilHungry,this.timeUntilStarve);
+        Cell c2 = new AsexuateCell(this.cellName + "-Achild2", this.timeUntilHungry,this.timeUntilStarve);
         this.cellState = CellStates.DEAD; //this cell that divided is no longer alive
         c1.cellState = CellStates.STARVING;
         c2.cellState = CellStates.STARVING;
@@ -25,6 +25,12 @@ public class AsexuateCell extends Cell {
         //start two new threads
         t1.start();
         t2.start();
+    }
+
+    @Override
+    public void run() {
+        // TODO Auto-generated method stub
+        
     }
 
 }

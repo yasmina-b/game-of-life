@@ -1,11 +1,14 @@
 package cells;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import enums.CellStates;
+
+import javax.lang.model.type.ArrayType;
 
 public class SexuateCell extends Cell {
     public final Lock lock = new ReentrantLock();
@@ -20,15 +23,15 @@ public class SexuateCell extends Cell {
         this.divisible = status;
     }
 
-    public SexuateCell(int timeUntilHungry, int timeUntilStarve, String name) {
-        super(timeUntilHungry, timeUntilStarve, name);
+    public SexuateCell(String cellName, int timeUntilHungry, int timeUntilStarve) {
+        super(cellName, timeUntilHungry, timeUntilStarve);
     }
 
     @Override
     public void divide() {
         System.out.println("~~~~~~" + this.cellName + " wants to divide!");
         //search for cells that want to divide too
-        LinkedBlockingQueue<Cell> cellsQ = gameSpace.getCellsQueue();
+        ArrayList<Cell> cellsQ = gameSpace.getCellsQueue();
         Iterator<Cell> it = cellsQ.iterator();
         try {
             while (it.hasNext()) {
@@ -52,15 +55,15 @@ public class SexuateCell extends Cell {
                                         sexuateCell.hasDivided = true;
                                         System.out.println("#############################################> Sexuate division this-> " + this.cellName + " and other-> " + currentCell.cellName);
                                         System.out.println("#############################################");
-                                        Cell c = new SexuateCell(this.timeUntilHungry, this.timeUntilStarve, this.cellName + "-Schild");
+                                        Cell c = new SexuateCell(this.cellName + "-Schild", this.timeUntilHungry, this.timeUntilStarve);
                                         c.cellState = CellStates.STARVING;
                                         gameSpace.addCell(c);
                                         Thread t = new Thread(c);
                                         t.start();
                                     }
                                     finally{
-                                        this.alive = false;
-                                        currentCell.alive = false;
+                                        this.cellState = CellStates.FULL;
+                                        currentCell.cellState= CellStates.DEAD;
 
                                         gameSpace.removeCell(sexuateCell);
                                         System.out.println("Removed current cell -> " + this.cellName);
@@ -106,5 +109,10 @@ public class SexuateCell extends Cell {
             return true;
         }
         return false;
+    }
+    @Override
+    public void run() {
+        // TODO Auto-generated method stub
+        
     }
 }

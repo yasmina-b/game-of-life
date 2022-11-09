@@ -10,7 +10,7 @@ public abstract class Cell implements Runnable {
     protected String cellName;
     protected int nrOfTimesCellHasEaten;
 
-    protected CellStates cellState;
+    protected CellStates cellState = CellStates.FULL;
 
     protected int timeUntilHungry;
     protected int timeUntilStarve;
@@ -19,6 +19,8 @@ public abstract class Cell implements Runnable {
     //private int timeStarve;
 
     public static Space gameSpace;
+
+    public abstract void divide();
 
     public Cell(String cellName,int timeUntilHungry, int timeUntilStarve) {
         this.cellName = cellName;
@@ -68,6 +70,27 @@ public abstract class Cell implements Runnable {
             }
         }
 
+    }
+
+    public boolean canDivide() {
+        if(this.nrOfTimesCellHasEaten >= 10){
+            return true;
+        }
+        return false;
+    }
+	
+	public String toString() {
+		return this.cellName;
+	}
+    
+    @Override
+    public void run() {
+        try {
+			live();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 
 }

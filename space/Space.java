@@ -23,4 +23,8 @@ public class Space {
 
     }
 
+    public ArrayList<Cell> getCellsQueue() {
+        return cells;
+    }
+
 }

@@ -22,7 +22,7 @@ public abstract class Cell implements Runnable {
 
     public abstract void divide();
 
-    public Cell(String cellName,int timeUntilHungry, int timeUntilStarve) {
+    public Cell(String cellName, int timeUntilHungry, int timeUntilStarve) {
         this.cellName = cellName;
         this.nrOfTimesCellHasEaten = 0;
         this.timeUntilHungry = timeUntilHungry;
@@ -30,10 +30,6 @@ public abstract class Cell implements Runnable {
         setTime(); 
     }
 
-    public String toString() {
-        return this.cellName;
-    }
-        
     public void setTime() {
     	this.timeHungry = this.timeUntilHungry;
     	//this.timeStarve = this.timeUntilStarve;
@@ -83,14 +79,14 @@ public abstract class Cell implements Runnable {
 		return this.cellName;
 	}
     
-    @Override
-    public void run() {
-        try {
-			live();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    }
+    // @Override
+    // public void run() {
+    //     try {
+	// 		live();
+	// 	} catch (InterruptedException e) {
+	// 		// TODO Auto-generated catch block
+	// 		e.printStackTrace();
+	// 	}
+    // }
 
 }

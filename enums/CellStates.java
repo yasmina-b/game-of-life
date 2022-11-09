@@ -1,5 +1,5 @@
 package enums;
 
 public enum CellStates {
-    FULL, STARVING, DEAD;
+    FULL, STARVING, DEAD
 }

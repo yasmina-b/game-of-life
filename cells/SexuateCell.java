@@ -1,14 +1,9 @@
 package cells;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import enums.CellStates;
-
-import javax.lang.model.type.ArrayType;
 
 public class SexuateCell extends Cell {
     public final Lock lock = new ReentrantLock();
@@ -23,15 +18,15 @@ public class SexuateCell extends Cell {
         this.divisible = status;
     }
 
-    public SexuateCell(String cellName, int timeUntilHungry, int timeUntilStarve) {
-        super(cellName, timeUntilHungry, timeUntilStarve);
+    public SexuateCell(int timeUntilHungry, int timeUntilStarve, String name) {
+        super(timeUntilHungry, timeUntilStarve, name);
     }
 
     @Override
     public void divide() {
         System.out.println("~~~~~~" + this.cellName + " wants to divide!");
         //search for cells that want to divide too
-        ArrayList<Cell> cellsQ = gameSpace.getCellsQueue();
+        LinkedBlockingQueue<Cell> cellsQ = spaceObj.getCellsQueue();
         Iterator<Cell> it = cellsQ.iterator();
         try {
             while (it.hasNext()) {
@@ -41,44 +36,40 @@ public class SexuateCell extends Cell {
                 SexuateCell sexuateCell = (SexuateCell)currentCell;
                 if (!sexuateCell.equals(this)) {
                     if (sexuateCell.getDivisibleStatus() && sexuateCell.hasDivided == false) {
-                        boolean lockCell = sexuateCell.lock.tryLock();
+                        boolean lockCell = sexuateCell.lock.tryLock(); // blocks the cell with which our cell tries to divide with
+                        System.out.println("11" + sexuateCell.cellName);
                         if (lockCell) {
                             try {
-                                boolean lockThis = sexuateCell.lockCell(this);
+                                boolean lockThis = sexuateCell.lockCell(this); // blocks our current cell
                                 if(lockThis) {
                                     try {
-                                        System.out.println("********************************"+this.cellName+ " was locked by "+currentCell.cellName);
+                                        System.out.println("********************************" + this.cellName +  " was locked by " + currentCell.cellName);
                                         //make baby
                                         this.divisible = false;
                                         this.hasDivided = true;
                                         sexuateCell.setDivisibleStatus(false);
                                         sexuateCell.hasDivided = true;
-                                        System.out.println("#############################################> Sexuate division this-> " + this.cellName + " and other-> " + currentCell.cellName);
+                                        System.out.println("#############################################> Sexual division this-> " + this.cellName + " and other-> " + currentCell.cellName);
                                         System.out.println("#############################################");
-                                        Cell c = new SexuateCell(this.cellName + "-Schild", this.timeUntilHungry, this.timeUntilStarve);
-                                        c.cellState = CellStates.STARVING;
-                                        gameSpace.addCell(c);
+                                        Cell c = new SexuateCell(this.timeUntilHungry, this.timeUntilStarve, this.cellName + "-Sexuate child");
+                                        spaceObj.addCell(c);
                                         Thread t = new Thread(c);
                                         t.start();
                                     }
                                     finally{
-                                        this.cellState = CellStates.FULL;
-                                        currentCell.cellState= CellStates.DEAD;
-
-                                        gameSpace.removeCell(sexuateCell);
+                                        this.alive = false;
+                                        currentCell.alive = false;
+                                        spaceObj.removeCell(sexuateCell);
                                         System.out.println("Removed current cell -> " + this.cellName);
-                                        gameSpace.removeCell(this);
+                                        spaceObj.removeCell(this);
                                         System.out.println("Removed other cell -> " + sexuateCell.cellName);
                                         sexuateCell.unlockCell(this);
                                     }
                                 }
                             } finally {
                                 sexuateCell.lock.unlock();
-                                //MUST ALSO STOP THREADS??!!!
-
                             }
                         }
-
                     }
                 }
                 if(this.hasDivided == true)
@@ -90,9 +81,9 @@ public class SexuateCell extends Cell {
         }
     }
 
-
     public boolean lockCell(SexuateCell c) {
         if (c.lock.tryLock()) {
+            System.out.println("22" + c.cellName);
             return true;
         } else {
             return false;
@@ -109,10 +100,5 @@ public class SexuateCell extends Cell {
             return true;
         }
         return false;
-    }
-    @Override
-    public void run() {
-        // TODO Auto-generated method stub
-        
     }
 }

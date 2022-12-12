@@ -37,10 +37,10 @@ public abstract class Cell implements Runnable {
         spaceObj.addCell(c);
     }
 
-    public void live() throws InterruptedException{ // this is thrown when a thread is interrupted
-        while(alive){
+    public void live() throws InterruptedException { // this is thrown when a thread is interrupted
+        while(alive) {
             eat(spaceObj);
-            if(canDivide()) divide(); // checks to see if the cell has eaten minimum 10 times; if so then divide
+            if(canDivide()) divide();
         }
     }
 
@@ -62,7 +62,6 @@ public abstract class Cell implements Runnable {
                     int randomResources = ThreadLocalRandom.current().nextInt(1, 5);
                     System.out.println("----------Cell " + this.cellName + " has generated " + randomResources + " resources!----------");
                     spaceObj.addFood(randomResources, cellName);
-
                 }
             }
         }

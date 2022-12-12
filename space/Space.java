@@ -10,8 +10,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class Space {
 
-    private LinkedBlockingQueue<Cell> cellsQueue = new LinkedBlockingQueue<>();
-    private ArrayList<Food> food = new ArrayList<>();
+    private LinkedBlockingQueue<Cell> cellsQueue = new LinkedBlockingQueue<Cell>();
+    private ArrayList<Food> food = new ArrayList<Food>();
 
     public boolean checkSpaceForFood(String threadInfo) throws InterruptedException {
         try {
@@ -105,32 +105,32 @@ public class Space {
     public static void main(String[] args) {
         Space gameOfLife = new Space();
 
-        gameOfLife.addToInitialFoodStash(new Food(2,"resourceA"));
-        gameOfLife.addToInitialFoodStash(new Food(2,"resourceB"));
-        //gameOfLife.addToInitialFoodStash(new Food(5,"resourceC"));
-        //gameOfLife.addToInitialFoodStash(new Food(5,"resourceD"));
+        gameOfLife.addToInitialFoodStash(new Food(30,"resourceA"));
+        gameOfLife.addToInitialFoodStash(new Food(30,"resourceB"));
+        gameOfLife.addToInitialFoodStash(new Food(30,"resourceC"));
+        gameOfLife.addToInitialFoodStash(new Food(30,"resourceD"));
 
         Cell a = new AsexuateCell(10,5,"A");
         Cell b = new AsexuateCell(4,5,"B");
         Cell c = new AsexuateCell(3,1,"C");
         Cell d = new AsexuateCell(1,3,"D");
 
-        Cell e = new SexuateCell(20,4,"sE");
-        Cell f = new SexuateCell(20,4,"sF");
-        Cell g = new SexuateCell(20,4,"sG");
-        Cell h = new SexuateCell(20,4,"sH");
+        Cell e = new SexuateCell(3,4,"sE");
+        Cell f = new SexuateCell(3,4,"sF");
+        Cell g = new SexuateCell(3,4,"sG");
+        Cell h = new SexuateCell(3,4,"sH");
 
         Cell.spaceObj = gameOfLife;
 
-        gameOfLife.addCell(a);
-
-        //gameOfLife.addCell(c);
-        //gameOfLife.addCell(b);
-        //gameOfLife.addCell(d);
+//        gameOfLife.addCell(a);
+//
+//        gameOfLife.addCell(c);
+//        gameOfLife.addCell(b);
+//        gameOfLife.addCell(d);
         gameOfLife.addCell(e);
         gameOfLife.addCell(f);
-        //gameOfLife.addCell(g);
-        // gameOfLife.addCell(h);
+        gameOfLife.addCell(g);
+        gameOfLife.addCell(h);
 
         gameOfLife.startGameOfLife();
 

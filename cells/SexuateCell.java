@@ -38,37 +38,37 @@ public class SexuateCell extends Cell {
                     if (sexuateCell.getDivisibleStatus() && sexuateCell.hasDivided == false) {
                         boolean lockCell = sexuateCell.lock.tryLock(); // blocks the cell with which our cell tries to divide with
                         System.out.println("11" + sexuateCell.cellName);
-                        if (lockCell) {
+                        if (lockCell && sexuateCell.lockCell(this)) {
                             try {
-                                boolean lockThis = sexuateCell.lockCell(this); // blocks our current cell
-                                if(lockThis) {
-                                    try {
-                                        System.out.println("********************************" + this.cellName +  " was locked by " + currentCell.cellName);
-                                        //make baby
-                                        this.divisible = false;
-                                        this.hasDivided = true;
-                                        sexuateCell.setDivisibleStatus(false);
-                                        sexuateCell.hasDivided = true;
-                                        System.out.println("#############################################> Sexual division this-> " + this.cellName + " and other-> " + currentCell.cellName);
-                                        System.out.println("#############################################");
-                                        Cell c = new SexuateCell(this.timeUntilHungry, this.timeUntilStarve, this.cellName + "-Sexuate child");
-                                        spaceObj.addCell(c);
-                                        Thread t = new Thread(c);
-                                        t.start();
-                                    }
-                                    finally{
-                                        this.alive = false;
-                                        currentCell.alive = false;
-                                        spaceObj.removeCell(sexuateCell);
-                                        System.out.println("Removed current cell -> " + this.cellName);
-                                        spaceObj.removeCell(this);
-                                        System.out.println("Removed other cell -> " + sexuateCell.cellName);
-                                        sexuateCell.unlockCell(this);
-                                    }
-                                }
+                                //boolean lockThis = sexuateCell.lockCell(this); // blocks our current cell
+                                //if(lockThis) {
+                                //try {
+                                System.out.println("********************************" + this.cellName + " was locked by " + currentCell.cellName);
+                                //make baby
+                                this.divisible = false;
+                                this.hasDivided = true;
+                                sexuateCell.setDivisibleStatus(false);
+                                sexuateCell.hasDivided = true;
+                                System.out.println("#############################################> Sexual division this-> " + this.cellName + " and other-> " + currentCell.cellName);
+                                System.out.println("#############################################");
+                                Cell c = new SexuateCell(this.timeUntilHungry, this.timeUntilStarve, this.cellName + "-Sexuate child");
+                                spaceObj.addCell(c);
+                                Thread t = new Thread(c);
+                                t.start();
                             } finally {
+                                this.alive = false;
+                                currentCell.alive = false;
+                                spaceObj.removeCell(sexuateCell);
+                                System.out.println("Removed current cell -> " + this.cellName);
+                                spaceObj.removeCell(this);
+                                System.out.println("Removed other cell -> " + sexuateCell.cellName);
+                                sexuateCell.unlockCell(this);
                                 sexuateCell.lock.unlock();
                             }
+                            //}
+//                        }finally {
+//                                sexuateCell.lock.unlock();
+//                            }
                         }
                     }
                 }

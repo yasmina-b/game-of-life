@@ -2,6 +2,7 @@ package cells;
 
 import space.Space;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class Cell implements Runnable {
     public static Space spaceObj; //the actual game
@@ -16,9 +17,11 @@ public abstract class Cell implements Runnable {
     private int currentTimeUntilHungry;
     private int currentTimeUntilStarve;
 
-    protected boolean alive = true;
+    public AtomicBoolean alive = new AtomicBoolean(true);
 
-    protected String cellName;
+    public Thread thread;
+
+    public String cellName;
 
     public Cell(int timeUntilHungry, int timeUntilStarve, String name) {
         this.nrOfTimesCellHasEaten = 0;
@@ -37,10 +40,20 @@ public abstract class Cell implements Runnable {
         spaceObj.addCell(c);
     }
 
+    public void stop() {
+        alive.set(false);
+    }
+
     public void live() throws InterruptedException { // this is thrown when a thread is interrupted
-        while(alive) {
-            eat(spaceObj);
-            if(canDivide()) divide();
+        while (alive.get()) {
+            try {
+                //Thread.sleep(1000);
+                eat(spaceObj);
+                if(alive.get() && canDivide()) divide();
+            } catch (InterruptedException e){
+                Thread.currentThread().interrupt();
+                System.out.println("Thread was interrupted, Failed to complete operation");
+            }
         }
     }
 
@@ -49,7 +62,6 @@ public abstract class Cell implements Runnable {
             System.out.println(" - Cell: " + this.cellName + " ate. ");
             nrOfTimesCellHasEaten++;
             setTime(); //time for hungry&starve are reset
-            //Thread.sleep(1000 * timeUntilHungry); // it's full does not have to eat
 
         } else { // if the cell hasn't found available food resources
             currentTimeUntilHungry--;
@@ -57,11 +69,12 @@ public abstract class Cell implements Runnable {
                 currentTimeUntilStarve--;
                 if (currentTimeUntilStarve == 0) {
                     System.out.println("----------For Cell " + this.cellName + " it's game over!----------");
-                    this.alive = false;
+                    stop();
                     //randomly generated resources after cell death by starvation
                     int randomResources = ThreadLocalRandom.current().nextInt(1, 5);
                     System.out.println("----------Cell " + this.cellName + " has generated " + randomResources + " resources!----------");
                     spaceObj.addFood(randomResources, cellName);
+                    Thread.currentThread().interrupt();
                 }
             }
         }

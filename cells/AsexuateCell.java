@@ -11,7 +11,7 @@ public class AsexuateCell extends Cell {
 
         Cell c1 = new AsexuateCell(this.timeUntilHungry,this.timeUntilStarve,this.cellName+"-Asexuate child1");
         Cell c2 = new AsexuateCell(this.timeUntilHungry,this.timeUntilStarve,this.cellName+"-Asexuate child2");
-        this.alive = false; // this cell that divided is no longer alive
+        this.stop(); // this cell that divided is no longer alive
         System.out.println("~~~~~~~~~~~~CELL " + this.cellName + " HAS DIVIDED!~~~~~~~~~~~");
         Thread t1 = new Thread(c1);
         Thread t2 = new Thread(c2);

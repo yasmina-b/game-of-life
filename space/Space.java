@@ -94,6 +94,7 @@ public class Space {
     public void startGameOfLife() {
         for(Cell cell: cellsQueue) {
             Thread t = new Thread(cell);
+            cell.thread = t;
             t.start();
         }
     }
@@ -122,8 +123,8 @@ public class Space {
 
         Cell.spaceObj = gameOfLife;
 
-//        gameOfLife.addCell(a);
-//
+        gameOfLife.addCell(a);
+
 //        gameOfLife.addCell(c);
 //        gameOfLife.addCell(b);
 //        gameOfLife.addCell(d);

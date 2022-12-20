@@ -1,6 +1,12 @@
 package cells;
 
+import events.CellEvents;
+import events.EventType;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import producer.KProducer;
 import space.Space;
+
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -22,6 +28,8 @@ public abstract class Cell implements Runnable {
     public Thread thread;
 
     public String cellName;
+
+    String lifecycleTopic="lifecycleTopic";
 
     public Cell(int timeUntilHungry, int timeUntilStarve, String name) {
         this.nrOfTimesCellHasEaten = 0;
@@ -61,6 +69,8 @@ public abstract class Cell implements Runnable {
         if (space.checkSpaceForFood(cellName)) {
             System.out.println(" - Cell: " + this.cellName + " ate. ");
             nrOfTimesCellHasEaten++;
+            CellEvents cellEvents = new CellEvents(this.cellName, EventType.CELL_ATE);
+            KProducer.send(new ProducerRecord<>(lifecycleTopic, UUID.randomUUID().toString(), cellEvents));
             setTime(); //time for hungry&starve are reset
 
         } else { // if the cell hasn't found available food resources
@@ -74,6 +84,7 @@ public abstract class Cell implements Runnable {
                     int randomResources = ThreadLocalRandom.current().nextInt(1, 5);
                     System.out.println("----------Cell " + this.cellName + " has generated " + randomResources + " resources!----------");
                     spaceObj.addFood(randomResources, cellName);
+                    spaceObj.removeCell(this);
                     Thread.currentThread().interrupt();
                 }
             }

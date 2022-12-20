@@ -3,39 +3,43 @@ package space;
 import cells.AsexuateCell;
 import cells.Cell;
 import cells.SexuateCell;
+import events.*;
 import food.Food;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import producer.KProducer;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class Space {
 
     private LinkedBlockingQueue<Cell> cellsQueue = new LinkedBlockingQueue<Cell>();
     private ArrayList<Food> food = new ArrayList<Food>();
+    String endTopic = "endTopic";
+    String lifecycleTopic="lifecycleTopic";
 
     public boolean checkSpaceForFood(String threadInfo) throws InterruptedException {
         try {
             Boolean lockFood;
             Iterator<Food> foodIt = food.iterator();
-            while(foodIt.hasNext()) {
+            while (foodIt.hasNext()) {
                 Food resource = foodIt.next();
                 lockFood = resource.lock.tryLock();
-                if (lockFood){
-                    try{
+                if (lockFood) {
+                    try {
                         System.out.println(threadInfo + " acquired lock for " + resource.name);
-                        if(resource.getResourceUnits() > 0 ) {
+                        if (resource.getResourceUnits() > 0) {
                             resource.decrementResourceUnits();
                             System.out.println("Food:" + resource.name + " - " + "Resources left: " + resource.getResourceUnits());
                             return true;
                         }
-                    }
-                    finally
-                    {
+                    } finally {
                         // Make sure to unlock so that we don't cause a deadlock
                         System.out.println(threadInfo + " unlocked " + resource.name);
                         resource.lock.unlock();
                     }
-                }else
+                } else
                     System.out.println(threadInfo + " tried to lock food " + resource.name);
             }
         } catch (Exception e) {
@@ -48,6 +52,9 @@ public class Space {
     public void addCell(Cell c) {
         try {
             cellsQueue.put(c);
+            CellEvents cellEvents = new CellEvents(c.cellName, EventType.CELL_DIVIDED);
+            KProducer.send(new ProducerRecord<>(lifecycleTopic, UUID.randomUUID().toString(), cellEvents));
+            System.out.println("This cell was added!");
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -57,23 +64,20 @@ public class Space {
         try {
             Boolean lockFood;
             Iterator<Food> foodIt = food.iterator();
-            while(foodIt.hasNext()) {
+            while (foodIt.hasNext()) {
                 Food availableResource = foodIt.next();
                 lockFood = availableResource.lock.tryLock();
-                if (lockFood)
-                {
-                    try{
+                if (lockFood) {
+                    try {
                         System.out.println(threadInfo + " acquired lock for " + availableResource.name + "---- in order to add resource");
                         availableResource.incrementResourceUnits(resources);
                         break;
-                    }
-                    finally
-                    {
+                    } finally {
                         // Make sure to unlock so that we don't cause a deadlock
-                        System.out.println(threadInfo+" unlocked " + availableResource.name);
+                        System.out.println(threadInfo + " unlocked " + availableResource.name);
                         availableResource.lock.unlock();
                     }
-                }else {
+                } else {
                     System.out.println(threadInfo + " tried to lock food " + availableResource.name);
                 }
             }
@@ -87,39 +91,41 @@ public class Space {
         return cellsQueue;
     }
 
-    public void removeCell(Cell c){
+    public void removeCell(Cell c) {
+        CellEvents cellEvents = new CellEvents(c.cellName, EventType.CELL_DIED);
+        KProducer.send(new ProducerRecord<>(endTopic, UUID.randomUUID().toString(), cellEvents));
         cellsQueue.remove(c);
     }
 
     public void startGameOfLife() {
-        for(Cell cell: cellsQueue) {
+        for (Cell cell : cellsQueue) {
             Thread t = new Thread(cell);
             cell.thread = t;
             t.start();
         }
     }
 
-    public void addToInitialFoodStash(Food food){
+    public void addToInitialFoodStash(Food food) {
         this.food.add(food);
     }
 
     public static void main(String[] args) {
         Space gameOfLife = new Space();
 
-        gameOfLife.addToInitialFoodStash(new Food(30,"resourceA"));
-        gameOfLife.addToInitialFoodStash(new Food(30,"resourceB"));
-        gameOfLife.addToInitialFoodStash(new Food(30,"resourceC"));
-        gameOfLife.addToInitialFoodStash(new Food(30,"resourceD"));
+        gameOfLife.addToInitialFoodStash(new Food(30, "resourceA"));
+        gameOfLife.addToInitialFoodStash(new Food(30, "resourceB"));
+        gameOfLife.addToInitialFoodStash(new Food(30, "resourceC"));
+        gameOfLife.addToInitialFoodStash(new Food(30, "resourceD"));
 
-        Cell a = new AsexuateCell(10,5,"A");
-        Cell b = new AsexuateCell(4,5,"B");
-        Cell c = new AsexuateCell(3,1,"C");
-        Cell d = new AsexuateCell(1,3,"D");
+        Cell a = new AsexuateCell(10, 5, "A");
+        Cell b = new AsexuateCell(4, 5, "B");
+        Cell c = new AsexuateCell(3, 1, "C");
+        Cell d = new AsexuateCell(1, 3, "D");
 
-        Cell e = new SexuateCell(3,4,"sE");
-        Cell f = new SexuateCell(3,4,"sF");
-        Cell g = new SexuateCell(3,4,"sG");
-        Cell h = new SexuateCell(3,4,"sH");
+        Cell e = new SexuateCell(3, 4, "sE");
+        Cell f = new SexuateCell(3, 4, "sF");
+        Cell g = new SexuateCell(3, 4, "sG");
+        Cell h = new SexuateCell(3, 4, "sH");
 
         Cell.spaceObj = gameOfLife;
 

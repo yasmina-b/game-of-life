@@ -39,11 +39,11 @@ public final class KProducer {
         this.kafkaProducer = new KafkaProducer<>(props, new StringSerializer(), new KafkaJsonSerializer());
     }
 
-    public static<K,V> void send(org.apache.kafka.clients.producer.ProducerRecord<K, V> record){
+    public static void send(org.apache.kafka.clients.producer.ProducerRecord<String, CellEvents> record){
         if(INSTANCE == null) {
             INSTANCE = new KProducer();
         }
-        kafkaProducer.send((ProducerRecord<String, CellEvents>) record);
+        kafkaProducer.send(record);
     }
 
 

@@ -70,11 +70,11 @@ public abstract class Cell implements Runnable {
             System.out.println(" - Cell: " + this.cellName + " ate. ");
             nrOfTimesCellHasEaten++;
             CellEvents cellEvents = new CellEvents(this.cellName, EventType.CELL_ATE);
-            KProducer.send(new ProducerRecord<>(lifecycleTopic, UUID.randomUUID().toString(), cellEvents));
+            KProducer.send(new ProducerRecord(lifecycleTopic, UUID.randomUUID().toString(), cellEvents));
             setTime(); //time for hungry&starve are reset
 
         } else { // if the cell hasn't found available food resources
-            currentTimeUntilHungry--;
+            currentTimeUntilHungry--; // decrement the time until it gets hungry
             if (currentTimeUntilHungry < 0) {
                 currentTimeUntilStarve--;
                 if (currentTimeUntilStarve == 0) {

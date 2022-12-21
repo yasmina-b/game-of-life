@@ -53,7 +53,7 @@ public class Space {
         try {
             cellsQueue.put(c);
             CellEvents cellEvents = new CellEvents(c.cellName, EventType.CELL_DIVIDED);
-            KProducer.send(new ProducerRecord<>(lifecycleTopic, UUID.randomUUID().toString(), cellEvents));
+            KProducer.send(new ProducerRecord(lifecycleTopic, UUID.randomUUID().toString(), cellEvents));
             System.out.println("This cell was added!");
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -93,7 +93,7 @@ public class Space {
 
     public void removeCell(Cell c) {
         CellEvents cellEvents = new CellEvents(c.cellName, EventType.CELL_DIED);
-        KProducer.send(new ProducerRecord<>(endTopic, UUID.randomUUID().toString(), cellEvents));
+        KProducer.send(new ProducerRecord(endTopic, UUID.randomUUID().toString(), cellEvents));
         cellsQueue.remove(c);
     }
 
